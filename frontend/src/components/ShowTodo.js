@@ -9,6 +9,7 @@ export const ShowTodo = (props) => {
   const [currentTodo, setCurrentTodo] = useState(initialState);
   const [currentFile, setCurrentFile] = useState([]);
   const [previewImage, setPreviewImage] = useState(undefined);
+  const [labelUrl, setLabelUrl] = useState("");
 
   const selectFile = (e) => {
     const selectedImage = e.target.files[0];
@@ -23,6 +24,8 @@ export const ShowTodo = (props) => {
       .then((response) => {
         setCurrentTodo(response.data);
         setCurrentFile(response.data);
+        const url = response.data.file.url;
+        setLabelUrl(`http://localhost:8000/${url}`);
         console.log(response.data);
       })
       .catch((e) => {
@@ -84,12 +87,15 @@ export const ShowTodo = (props) => {
             </label>
           </div>
 
-          {previewImage && (
-        <div>
-          <img className="preview" src={previewImage} alt="" />
-        </div>
-      )}
-
+          {previewImage ? (
+            <div>
+              <img className="preview" src={previewImage} alt="" width={200} />
+            </div>
+          ) : (
+            <div>
+              <img src={labelUrl} width={200} />
+            </div>
+          )}
         </div>
         <form>
           <div className="form-group">

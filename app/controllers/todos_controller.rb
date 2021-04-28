@@ -35,14 +35,6 @@ class TodosController < ApplicationController
     end
   end
 
-  def destroy_all
-    if Todo.destroy_all
-      head :no_content
-    else
-      render json: { error: "Failed to destroy" }, status: 422
-    end
-  end
-
   private
 
   def todo_params

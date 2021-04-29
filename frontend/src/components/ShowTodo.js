@@ -7,7 +7,7 @@ export const ShowTodo = (props) => {
     text: "",
   };
   const [currentTodo, setCurrentTodo] = useState(initialState);
-  const [currentFile, setCurrentFile] = useState([]);
+  const [currentFile, setCurrentFile] = useState();
   const [previewImage, setPreviewImage] = useState(undefined);
   const [labelUrl, setLabelUrl] = useState("");
 
@@ -43,36 +43,45 @@ export const ShowTodo = (props) => {
     setCurrentTodo({ ...currentTodo, [name]: value });
   };
 
-  const updateTodo = () => {
+  const createFormData = () => {
     let formData = new FormData();
     formData.append("todo[title]", currentTodo.title);
     formData.append("todo[text]", currentTodo.text);
     formData.append("todo[file]", currentFile);
+    return formData;
+  };
 
+  const updateTodo = async () => {
+    const url = `http://localhost:8000/todos/${currentTodo.id}`;
+    const data = await createFormData();
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data",
+      },
+      headers: JSON.parse(localStorage.user),
+    };
     axios
-      .patch(`http://localhost:8000/todos/${currentTodo.id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      .patch(url, data, config)
       .then((response) => {
-        console.log(response.data);
-        props.history.push("/todos");
+        console.log(response);
       })
-      .catch((e) => {
-        console.log(e);
+      .catch((error) => {
+        console.log(error);
       });
   };
 
   const deleteTodo = () => {
+    const url = `http://localhost:8000/todos/${currentTodo.id}`;
+    const config = {
+      headers: JSON.parse(localStorage.user),
+    };
     axios
-      .delete(`http://localhost:8000/todos/${currentTodo.id}`)
+      .delete(url, config)
       .then((response) => {
-        console.log(response.data);
-        props.history.push("/todos");
+        console.log(response);
       })
-      .catch((e) => {
-        console.log(e);
+      .catch((error) => {
+        console.log(error);
       });
   };
 
@@ -82,9 +91,9 @@ export const ShowTodo = (props) => {
         <h4>Todo</h4>
         <div className="row">
           <div className="col-8">
-            <label className="btn btn-default p-0">
-              <input type="file" accept="image/*" onChange={selectFile} />
-            </label>
+              <label className="btn btn-default p-0">
+                <input type="file" accept="image/*" onChange={selectFile}/>
+              </label>
           </div>
 
           {previewImage ? (

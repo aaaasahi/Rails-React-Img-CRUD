@@ -1,4 +1,6 @@
 class TodosController < ApplicationController
+  before_action :authenticate_user!, except: [:index, :show]
+
   def index
     todos = Todo.order(updated_at: :desc)
     render json: todos
@@ -10,34 +12,25 @@ class TodosController < ApplicationController
   end
 
   def create
-    todo = Todo.new(todo_params)
-    if todo.save
-      render json: todo
-    else
-      render json: todo.errors, status: 422
-    end
+    todo =  current_user.todos.create!(todo_params)
+    render json: todo
   end
 
   def update
-    todo = Todo.find(params[:id])
-    if todo.update(todo_params)
-      render json: todo
-    else
-      render json: todo.errors, status: 422
-    end
+    todo = current_user.todos.find(params[:id]) 
+    todo.update!(todo_params)
+    render json: todo
   end
 
   def destroy
-    if Todo.destroy(params[:id])
-      head :no_content
-    else
-      render json: { error: "Failed to destroy" }, status: 422
-    end
+    todo = current_user.todos.find(params[:id])
+    todo.destroy!
+    render json: todo
   end
 
   private
 
   def todo_params
-    params[:todo].permit(:title, :text, :file)
+    params.require(:todo).permit(:title, :text, :file).merge(user: current_user)
   end
 end

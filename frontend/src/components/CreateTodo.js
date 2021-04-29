@@ -7,8 +7,8 @@ export const CreateTodo = () => {
     title: "",
     text: "",
   };
-  const [todo, setTodo] = useState(initialState)
-  const [file, setFile] = useState()
+  const [todo, setTodo] = useState(initialState);
+  const [file, setFile] = useState();
   const [previewImage, setPreviewImage] = useState(undefined);
   const history = useHistory();
 
@@ -19,29 +19,36 @@ export const CreateTodo = () => {
     setPreviewImage(setPreview);
   };
 
-  const onChangeInput = event => {
+  const onChangeInput = (event) => {
     const { name, value } = event.target;
     setTodo({ ...todo, [name]: value });
   };
 
-  const upload = () => {
+  const createFormData = () => {
     let formData = new FormData();
     formData.append("todo[title]", todo.title);
     formData.append("todo[text]", todo.text);
     formData.append("todo[file]", file);
-    
-    axios.post("http://localhost:8000/todos", formData, {
+    return formData
+  }
+
+  const upload = async() => {
+    const url = "http://localhost:8000/todos"
+    const data = await createFormData()  
+    const config = {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "content-type": "multipart/form-data",
       },
-    })
-    .then((response) => {
-      history.push("/todos");
-      console.log(response);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+      headers: JSON.parse(localStorage.user),
+    }
+
+    axios.post(url, data, config)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -59,7 +66,7 @@ export const CreateTodo = () => {
           </div>
         )}
       </div>
-      <div>
+      <>
         <div className="form-group">
           <label htmlFor="title">Title</label>
           <input
@@ -89,7 +96,7 @@ export const CreateTodo = () => {
         <button onClick={upload} className="btn btn-success">
           Submit
         </button>
-      </div>
+      </>
     </div>
   );
 };
